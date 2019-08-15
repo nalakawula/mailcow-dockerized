@@ -27,6 +27,7 @@ BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 function prefetch_images() {
   [[ -z ${BRANCH} ]] && { echo -e "\e[33m\nUnknown branch...\e[0m"; exit 1; }
+  git fetch origin #${BRANCH}
   while read image; do
     RET_C=0
     until docker pull ${image}; do
@@ -326,6 +327,11 @@ if [[ ! "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
   echo "OK, exiting."
   exit 0
 fi
+
+DIFF_FILE=diff_before_update_$(date +"%Y-%m-%d-%H-%M-%S")
+echo -e "\e[32mSaving diff to ${DIFF_FILE}...\e[0m"
+git diff --stat > ${DIFF_FILE}
+git diff >> ${DIFF_FILE}
 
 echo -e "\e[32mPrefetching images...\e[0m"
 prefetch_images
